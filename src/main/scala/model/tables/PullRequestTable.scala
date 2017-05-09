@@ -1,10 +1,11 @@
 package model.tables
 
-import database.profile.DatabaseProfile
+import database.Db
 
-sealed trait PullRequestModule { self: DatabaseProfile =>
-    import profile.api._
-    import profile.api.{Tag => SlickTag}
+trait PullRequestTable { this: Db =>
+
+    import config.driver.api._
+    import config.driver.api.{Tag => SlickTag}
     import model.types._
 
     implicit def statusColumnType: BaseColumnType[Status] = 

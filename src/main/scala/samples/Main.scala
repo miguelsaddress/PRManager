@@ -1,67 +1,41 @@
 package samples
-import scala.concurrent.{Future}
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Try, Success, Failure}
-import slick.driver.{H2Driver, MySQLDriver}
-
-import database.profile.DatabaseLayer
+import scala.util.{Failure, Success}
+import model.repositories.UsersRepository
 import model.types.User
+import database.{Db, TestDbConfiguration}
+import Implicits.TypeConversion._
 
-object Main {
-
-  val mysqlLayer = new DatabaseLayer(MySQLDriver, "mysql-db-config") 
-  val h2Layer = new DatabaseLayer(H2Driver, "h2-db-config") 
+object Main extends TestDbConfiguration with Db {
 
   // Let's go! ----------------------------------
 
   def main(args: Array[String]): Unit = {
-    // Try(runWith(mysqlLayer)) match {
-    //   case Success(results) => showResults("MySql", results)
-    //   case Failure(_) => println("\n\t\tErrors run for Mysql\n")
-    // }
 
-    Try(runWith(h2Layer)) match {
-      case Success(results) => showResults("H2", results)
-      case Failure(e) => {
-        println("\n\t\tErrors run for H2\n")
-        println(e)
-      }
+    val usersRepository = new UsersRepository(config)
+
+    execSync(usersRepository.createTable)
+    execSync(usersRepository.create(User("username1", "email1", "http://example.com")))
+    execSync(usersRepository.create(User("username2", "email2", "http://example.com")))
+    execSync(usersRepository.create(User("username3", "email3", "http://example.com")))
+    execSync(usersRepository.create(User("username4", "email4", "http://example.com")))
+    execSync(usersRepository.selectAll).foreach(println)
+    println()
+    println()
+    execSync(usersRepository.findById(3)).foreach(println)
+
+    val user2 = db.run(usersRepository.findById(2))
+    user2 onComplete {
+      case Failure(e) => println(e.getMessage)
+      case Success(users) if users.length == 1 => println(users.head)
+      case Success(users) => "Many users with the same Id... Check your Table Definition"
     }
-  }
 
-  def showResults[A](dbLayerName: String, results: Future[(Seq[A], Seq[A])]) = {
-    results onComplete {
-      case Failure(t) => println(t.getMessage)
-      case Success((user, allUsers)) => 
-        val message = s"Successfully Run for ${dbLayerName}"
-        val nOfStars = message.length
-        println("="*nOfStars)
-        println(message) 
-        println("="*nOfStars)
-
-        user.foreach(println)
-        println
-        allUsers.foreach(println)
+    val user27 = db.run(usersRepository.findById(27))
+    user27.foreach {
+      case e if e.nonEmpty => println(e)
+      case e => println("User 27 Not found")
     }
-  }
-
-  def runWith(databaseLayer: DatabaseLayer[_]) = {
-    import databaseLayer._
-
-    val seedingData = 
-      createUser(User("user1", "email1", "http://myUrl.com")) andThen
-      createUser(User("user2", "email2", "http://myUrl.com")) andThen
-      createUser(User("user3", "email3", "http://myUrl.com")) andThen
-      createUser(User("user4", "email4", "http://myUrl.com"))
-    
-    exec(createUsersTable)
-    exec(seedingData)
-
-    val results = for {
-      user <- db.run(findUserById(3))
-      all <- db.run(selectAll)
-    } yield (user, all)
-
-    results
   }
 }
