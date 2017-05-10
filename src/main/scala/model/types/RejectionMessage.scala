@@ -1,7 +1,11 @@
 package model.types
 
-sealed case class RejectionMessage(text: String)
-object RejectionMessage {
-    def toString(rejectionMsg: RejectionMessage) = rejectionMsg.text
-    def fromString(text: String) = RejectionMessage(text)
-}
+import model.types.adt.RejectionReason
+
+case class RejectionMessage(
+                             text: String,
+                             reason: RejectionReason,
+                             prId: Long,
+                             userId: Long,
+                             id: Long = 0L
+                           )

@@ -20,8 +20,4 @@ trait PullRequestReviewersTable {
   }
 
   lazy val PullRequestReviewersTable = TableQuery[PullRequestReviewersTable]
-
-  // TO DO
-  // RejectionReasons(prId: Long, reason: String)
-  // PullRequestTags(prId: Long, tagId: Long) and Tag(value: String, id: Long) ??
 }

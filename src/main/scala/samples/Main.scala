@@ -1,11 +1,13 @@
 package samples
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import Implicits.TypeConversion._
+import database.{Db, TestDbConfiguration}
 import model.repositories.{PullRequestRepository, UsersRepository}
 import model.types._
-import database.{Db, TestDbConfiguration}
-import Implicits.TypeConversion._
+import model.types.adt.{Branch, Priority, Status}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 object Main extends TestDbConfiguration with Db {
 
@@ -29,7 +31,7 @@ object Main extends TestDbConfiguration with Db {
     execSync(usersRepository.create(u4))
     execSync(usersRepository.selectAll).foreach(println)
 
-    val pr1 = PullRequest(2, Status.Open, Branch("feature"), Branch("develop"), Priority.High)
+    val pr1 = PullRequest(2, Status.Open, Branch("feature"), Branch("develop"), Priority.High, 1)
 
     execSync(prRepository.create(pr1))
     execSync(prRepository.addReviewer(pr1, u3))
