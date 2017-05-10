@@ -16,7 +16,7 @@ trait PullRequestReviewersTable {
 
     def * = (prId, userId) <> (PullRequestReviewer.tupled, PullRequestReviewer.unapply)
 
-    def uniqueIdx = index("unique_idx", (prId, userId), unique = true)
+    def uniqueIdx = index("unique_pr_rev_id_idx", (prId, userId), unique = true)
   }
 
   lazy val PullRequestReviewersTable = TableQuery[PullRequestReviewersTable]

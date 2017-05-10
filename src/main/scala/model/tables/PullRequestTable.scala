@@ -28,21 +28,10 @@ trait PullRequestTable { this: Db =>
         def id          = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
         def * = (creatorId, status, source, destination, priority, id) <> (PullRequest.tupled, PullRequest.unapply)
-        def uniqueIdx  = index("unique_idx" , (source, destination), unique=true)
+        def uniqueIdx  = index("unique_pr_is_idx" , (source, destination), unique=true)
     }
 
     lazy val PullRequestTable = TableQuery[PullRequestTable]
-
-    class PullRequestReviewersTable(tag: SlickTag) 
-            extends Table[PullRequestReviewer](tag, "pull_request_reviewers") {
-        def prId    = column[Long]("pull_request_id")
-        def userId  = column[Long]("user_id")
-
-        def * = (prId, userId) <> (PullRequestReviewer.tupled, PullRequestReviewer.unapply)
-        def uniqueIdx  = index("unique_idx" , (prId, userId), unique=true)
-    }
-
-    lazy val PullRequestReviewersTable = TableQuery[PullRequestReviewersTable]
 
     // TO DO
     // RejectionReasons(prId: Long, reason: String)
