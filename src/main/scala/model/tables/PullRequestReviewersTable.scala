@@ -14,7 +14,9 @@ trait PullRequestReviewersTable {
 
     def userId = column[Long]("user_id")
 
-    def * = (prId, userId) <> (PullRequestReviewer.tupled, PullRequestReviewer.unapply)
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+
+    def * = (prId, userId, id) <> (PullRequestReviewer.tupled, PullRequestReviewer.unapply)
 
     def uniqueIdx = index("unique_pr_rev_id_idx", (prId, userId), unique = true)
   }
