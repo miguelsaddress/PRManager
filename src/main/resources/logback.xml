@@ -7,10 +7,14 @@
 
   <logger name="slick.compiler.QueryCompilerBenchmark" level="INFO"/>
   <logger name="slick.jdbc.JdbcBackend.benchmark"      level="INFO"/>
-  <logger name="slick.jdbc.JdbcBackend.statement"      level="INFO"/>
+  <logger name="slick.jdbc.JdbcBackend.statement"      level="INFO"/> <!-- DEBUG to see queries -->
   <logger name="slick.jdbc.StatementInvoker.result"    level="INFO"/>
+
+  <logger name="slick" level="INFO" />
+  <logger name="slick.jdbc" level="DEBUG" />
 
   <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
+
 </configuration>

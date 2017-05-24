@@ -13,7 +13,7 @@ trait TeamsTable {
     def name = column[String]("name", O.Length(255, varying = true))
 
     def projectId = column[Long]("project_id")
-    
+
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
     def uniqueTeamName = index("unique_team_name_per_project", (name, projectId), unique = true)

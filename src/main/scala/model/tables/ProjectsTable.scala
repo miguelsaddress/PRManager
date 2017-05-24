@@ -2,11 +2,10 @@ package model.tables
 
 import java.net.URL
 
+import Implicits.TypeConversion._
 import database.Db
 import model.types.Project
 import model.types.adt.CVSHosting
-
-import Implicits.TypeConversion._
 
 trait ProjectsTable {
   this: Db =>
@@ -18,16 +17,16 @@ trait ProjectsTable {
 
   implicit val cvsColumn: BaseColumnType[CVSHosting] =
     MappedColumnType.base[CVSHosting, Int](CVSHosting.toInt, CVSHosting.fromInt)
-  
+
   // Table
   class ProjectsTable(tag: Tag) extends Table[Project](tag, "projects") {
     def name = column[String]("name", O.Length(255, varying = true))
 
-    def admin = column[Long]("admin", O.PrimaryKey, O.AutoInc)
+    def admin = column[Long]("admin")
 
-    def repoUrl   = column[URL]("repo_url")
+    def repoUrl = column[URL]("repo_url", O.Length(255, varying = true))
 
-    def cvs       = column[CVSHosting]("cvs")
+    def cvs = column[CVSHosting]("cvs", O.Length(25, varying = true))
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 

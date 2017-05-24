@@ -16,7 +16,7 @@ class UsersRepository(val config: DatabaseConfig[JdbcProfile]) extends Db with U
   def createTable = UsersTable.schema.create
 
   // TODO: return user with Id
-  def create(user: User) = UsersTable += user
+  def create(user: User) = UsersTable returning UsersTable.map(_.id) += user
 
   def findById(id: Long) = UsersTable.filter(_.id === id).result
 

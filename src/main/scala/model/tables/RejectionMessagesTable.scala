@@ -11,7 +11,7 @@ trait RejectionMessagesTable {
 
   implicit val reasonColumnType: BaseColumnType[RejectionReason] =
     MappedColumnType.base[RejectionReason, Int](RejectionReason.toInt, RejectionReason.fromInt)
-  
+
   // Table
   class RejectionMessagesTable(tag: Tag) extends Table[RejectionMessage](tag, "rejection_messages") {
 
