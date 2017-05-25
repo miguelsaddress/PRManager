@@ -15,11 +15,9 @@ class UsersRepository(val config: DatabaseConfig[JdbcProfile]) extends Repositor
 
   override def createTable = UsersTable.schema.create
 
-  override def create(user: User)(implicit ec: ExecutionContext) = {
-    for {
-      uid <- UsersTable returning UsersTable.map(_.id) += user
-    } yield user.copy(id=uid)
-  }
+  override def create(user: User)(implicit ec: ExecutionContext): DBIO[User] = for {
+    uid <- UsersTable returning UsersTable.map(_.id) += user
+  } yield user.copy(id=uid)
 
   override def findById(id: Long) = UsersTable.filter(_.id === id).result.headOption
 

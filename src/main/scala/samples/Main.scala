@@ -44,11 +44,15 @@ object Main extends TestDbConfiguration with Db {
 
     // Create users
     val createUsersAction =
-      usersRepository.create(u1) andThen
-      usersRepository.create(u2) andThen
-      usersRepository.create(u3) andThen
-      usersRepository.create(u4) andThen
-      usersRepository.create(u5)
+      usersRepository.createMany(
+        List(u1, u2, u3, u4, u5) ++
+        List(
+          User("username6" , "email6" , "http://example.com"),
+          User("username7" , "email7" , "http://example.com"),
+          User("username8" , "email8" , "http://example.com"),
+          User("username9" , "email9" , "http://example.com")
+        )
+      )
 
     //Create project
     val createProjectsAction =
@@ -74,38 +78,14 @@ object Main extends TestDbConfiguration with Db {
       prRepository.addReviewer(pr2, u1) andThen
       prRepository.addReviewer(pr2, u2)
 
-
     val createFixturesAction =
       createTableActions    andThen
       createUsersAction     andThen
-      usersRepository.createMany(
-          List(
-            User("username7", "email7", "http://example.com"),
-            User("username8", "email8", "http://example.com"),
-            User("username9", "email9", "http://example.com"),
-            User("username10", "email10", "http://example.com")
-          )
-      ) andThen
       createProjectsAction  andThen
       createTeamsAction     andThen
       createPullRequestsAction
 
     execSync(createFixturesAction)
-
-    execSyncWithMsg("This should contain in id = 6",
-      usersRepository.create(
-        User("username6", "email6", "http://example.com")
-      )
-    )
-
-    usersRepository.createMany(
-        List(
-          User("username7", "email7", "http://example.com"),
-          User("username8", "email8", "http://example.com"),
-          User("username9", "email9", "http://example.com"),
-          User("username10", "email10", "http://example.com")
-        )
-    )
 
     // Display some
     execSyncWithMsgSeq("Teams of Project 1", projectRepository.getTeams(project1))
@@ -141,5 +121,4 @@ object Main extends TestDbConfiguration with Db {
     println()
     println("=" * 120)
   }
-
 }
