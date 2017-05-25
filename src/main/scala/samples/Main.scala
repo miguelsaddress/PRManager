@@ -27,7 +27,7 @@ object Main extends TestDbConfiguration with Db {
     val u3 = User("username3" , "email3" , "http://example.com" , 3)
     val u4 = User("username4" , "email4" , "http://example.com" , 4)
     val u5 = User("username5" , "email5" , "http://example.com" , 5)
-             
+
     val project1 = Project("My project" , u1.id , "http://github.com/aUser/aRepo" , GitHub , 1)
     val pr1 = PullRequest(2 , Status.Open     , Branch("feature")  , Branch("develop"), Priority.High   , project1.id , 1)
     val pr2 = PullRequest(5 , Status.Approved , Branch("feature2") , Branch("develop"), Priority.Normal , project1.id , 2)
@@ -41,7 +41,7 @@ object Main extends TestDbConfiguration with Db {
       projectRepository.createTable andThen
       prRepository.createTable      andThen
       teamRepository.createTable
-    
+
     // Create users
     val createUsersAction =
       usersRepository.create(u1) andThen
@@ -49,7 +49,7 @@ object Main extends TestDbConfiguration with Db {
       usersRepository.create(u3) andThen
       usersRepository.create(u4) andThen
       usersRepository.create(u5)
-    
+
     //Create project
     val createProjectsAction =
       projectRepository.create(project1)
@@ -78,39 +78,68 @@ object Main extends TestDbConfiguration with Db {
     val createFixturesAction =
       createTableActions    andThen
       createUsersAction     andThen
+      usersRepository.createMany(
+          List(
+            User("username7", "email7", "http://example.com"),
+            User("username8", "email8", "http://example.com"),
+            User("username9", "email9", "http://example.com"),
+            User("username10", "email10", "http://example.com")
+          )
+      ) andThen
       createProjectsAction  andThen
       createTeamsAction     andThen
       createPullRequestsAction
 
     execSync(createFixturesAction)
 
+    execSyncWithMsg("This should contain in id = 6",
+      usersRepository.create(
+        User("username6", "email6", "http://example.com")
+      )
+    )
+
+    usersRepository.createMany(
+        List(
+          User("username7", "email7", "http://example.com"),
+          User("username8", "email8", "http://example.com"),
+          User("username9", "email9", "http://example.com"),
+          User("username10", "email10", "http://example.com")
+        )
+    )
+
     // Display some
-    execSyncWithMsg("Teams of Project 1", projectRepository.getTeams(project1))
+    execSyncWithMsgSeq("Teams of Project 1", projectRepository.getTeams(project1))
 
-    execSyncWithMsg("All the users are", usersRepository.selectAll)
-    execSyncWithMsg("The user with [id=3]", usersRepository.findById(3))
-    execSyncWithMsg("The PR with [id=1]", prRepository.findById(1))
-    execSyncWithMsg("This are the reviewers of PR1", prRepository.getReviewers(pr1))
+    execSyncWithMsgSeq("All the users are", usersRepository.selectAll)
 
-    val user2 = db.run(usersRepository.findById(2))
-    user2 onComplete {
-      case Failure(e) => println(e.getMessage)
-      case Success(users) if users.length == 1 => println(users.head)
-      case Success(users) => "Many users with the same Id... Check your Table Definition"
+    execSyncWithMsgSeq("This are the reviewers of PR1", prRepository.getReviewers(pr1))
+
+    execSync(usersRepository.findById(2)) match {
+      case Some(user) => println(s"User[id=2]: $user")
+      case None       => println("User[id=2] Not found")
     }
 
-    val user27 = db.run(usersRepository.findById(27))
-    user27.foreach {
-      case e if e.nonEmpty => println(e)
-      case e => println("User 27 Not found")
+    execSync(usersRepository.findById(27)) match {
+      case Some(user) => println(user)
+      case None       => println("User[id=27] Not found")
     }
   }
 
-  def execSyncWithMsg(msg: String, action: DBIO[Seq[_]]) = {
+  def execSyncWithMsgSeq(msg: String, action: DBIO[Seq[_]]) = {
     println(msg)
     println("-" * msg.length)
     execSync(action).foreach(println)
     println()
     println("=" * 120)
   }
+
+  def execSyncWithMsg(msg: String, action: DBIO[_]) = {
+    println(msg)
+    println("-" * msg.length)
+    val res = execSync(action)
+    println(res)
+    println()
+    println("=" * 120)
+  }
+
 }

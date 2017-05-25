@@ -5,20 +5,23 @@ import model.tables.UsersTable
 import model.types.User
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
+import scala.concurrent.ExecutionContext
 
-
-class UsersRepository(val config: DatabaseConfig[JdbcProfile]) extends Db with UsersTable {
+class UsersRepository(val config: DatabaseConfig[JdbcProfile]) extends Repository[User] with UsersTable {
 
   import config.driver.api._
 
-  def dropTable = UsersTable.schema.drop
+  override def dropTable = UsersTable.schema.drop
 
-  def createTable = UsersTable.schema.create
+  override def createTable = UsersTable.schema.create
 
-  // TODO: return user with Id
-  def create(user: User) = UsersTable returning UsersTable.map(_.id) += user
+  override def create(user: User)(implicit ec: ExecutionContext) = {
+    for {
+      uid <- UsersTable returning UsersTable.map(_.id) += user
+    } yield user.copy(id=uid)
+  }
 
-  def findById(id: Long) = UsersTable.filter(_.id === id).result
+  override def findById(id: Long) = UsersTable.filter(_.id === id).result.headOption
 
-  def selectAll = UsersTable.result
+  override def selectAll = UsersTable.result
 }

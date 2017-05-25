@@ -15,7 +15,6 @@ class TeamsRepository(val config: DatabaseConfig[JdbcProfile]) extends Db with T
 
   def createTable = (TeamsTable.schema ++ UsersTeamsTable.schema).create
 
-  // TODO: return user with Id
   def create(team: Team) = TeamsTable returning TeamsTable.map(_.id) += team
 
   def findById(id: Long) = TeamsTable.filter(_.id === id).result
